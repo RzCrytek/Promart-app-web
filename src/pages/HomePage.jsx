@@ -1,29 +1,65 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+
+import { addDoc, collection } from 'firebase/firestore';
+import db from '../firebase/firebaseConfig';
+
+import { toast } from 'react-toastify';
 
 import Layout from './_Layout';
+import { Link } from 'react-router-dom';
 
-// const initialForm = {
-//   name: '',
-//   last_name: '',
-//   age: '',
-// };
+const initialClient = {
+  name: '',
+  last_name: '',
+  age: '',
+  date_birth: '',
+};
 
 const HomePage = () => {
-  const [clientForm, setClientForm] = useState({});
+  const [clientForm, setClientForm] = useState(initialClient);
+  const [formErrors, setFormErrors] = useState(true);
+  const [disabled, setDisabled] = useState(true);
+
+  useEffect(() => {
+    if (
+      !clientForm.name ||
+      !clientForm.last_name ||
+      !clientForm.age ||
+      !clientForm.date_birth
+      // !clientForm.terms
+    ) {
+      setFormErrors(true);
+    } else {
+      setFormErrors(false);
+    }
+  }, [clientForm]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
 
-    console.log('name:', name);
-    console.log('value:', value);
-
     setClientForm({ ...clientForm, [name]: value });
+
+    // if (name === 'terms') {
+    //   setClientForm({ ...clientForm, [name]: e.target.checked });
+    // }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    console.log('send');
+    console.log('sendd');
+    console.log('clientForm:', clientForm);
+    console.log('env:', process.env.REACT_APP_FIREBASE_AUTHDOMAIN);
+
+    const docRef = await addDoc(collection(db, 'clients'), clientForm);
+
+    toast.success('¡Cliente Registrado!');
+
+    setClientForm(initialClient);
+
+    console.log('docRef:', docRef.id);
+
+    console.log('finish');
   };
 
   return (
@@ -44,6 +80,7 @@ const HomePage = () => {
                           className="input"
                           type="text"
                           name="name"
+                          value={clientForm.name}
                           onChange={handleChange}
                           required
                         />
@@ -58,6 +95,7 @@ const HomePage = () => {
                           className="input"
                           type="text"
                           name="last_name"
+                          value={clientForm.last_name}
                           onChange={handleChange}
                           required
                         />
@@ -72,6 +110,7 @@ const HomePage = () => {
                           className="input"
                           type="number"
                           name="age"
+                          value={clientForm.age}
                           onChange={handleChange}
                           required
                         />
@@ -86,18 +125,20 @@ const HomePage = () => {
                           className="input"
                           type="date"
                           name="date_birth"
+                          value={clientForm.date_birth}
                           onChange={handleChange}
                           required
                         />
                       </div>
                     </div>
 
-                    <div className="field">
+                    {/* <div className="field">
                       <div className="control">
                         <label className="checkbox">
                           <input
                             type="checkbox"
                             name="terms"
+                            value="true"
                             onChange={handleChange}
                             required
                           />{' '}
@@ -112,18 +153,27 @@ const HomePage = () => {
                           </a>
                         </label>
                       </div>
-                    </div>
+                    </div> */}
 
                     <div className="field is-grouped">
                       <div className="control">
-                        <button className="button is-link" type="button">
+                        <button
+                          className="button is-link"
+                          type="submit"
+                          disabled={formErrors}
+                        >
                           Crear cliente
                         </button>
                       </div>
 
                       {/* <div className="control">
-                  <button className="button is-link is-light">Cancel</button>
-                </div> */}
+                        <Link
+                          className="button is-link is-light"
+                          to="/listar-clientes"
+                        >
+                          Ver clientes
+                        </Link>
+                      </div> */}
                     </div>
                   </div>
                 </div>

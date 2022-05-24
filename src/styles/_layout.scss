@@ -26,3 +26,13 @@ a {
   padding-inline: 32px;
   margin-inline: auto;
 }
+
+.table {
+  tbody {
+    tr {
+      td {
+        vertical-align: middle;
+      }
+    }
+  }
+}
