@@ -1,0 +1,13 @@
+#header {
+  background-color: $white;
+  box-shadow: 0 1px 5px 0 rgba($black, 0.2);
+
+  .navbar-item {
+    transition: $t-1;
+
+    &.active {
+      background-color: $c-2;
+      color: $c-3;
+    }
+  }
+}
