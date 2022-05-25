@@ -5,8 +5,7 @@ import { collection, getDocs } from 'firebase/firestore';
 import db from '../firebase/firebaseConfig';
 
 import Layout from './_Layout';
-import Table from '../components/Table';
-import Loader from '../components/Loader';
+import { Loader, Modal, Table } from '../components';
 
 const initialState = {
   data: [],
@@ -15,6 +14,8 @@ const initialState = {
 
 const ClientListPage = () => {
   const [docsCollection, setDocsCollection] = useState(initialState);
+  const [client, setClient] = useState({});
+  const [openModal, setOpenModal] = useState(false);
 
   useEffect(() => {
     const getDocsCollection = async () => {
@@ -31,6 +32,11 @@ const ClientListPage = () => {
     getDocsCollection();
   }, []);
 
+  const handleModal = (client) => {
+    setClient(client);
+    setOpenModal(!openModal);
+  };
+
   console.log('docsCollection:', docsCollection);
 
   return (
@@ -38,15 +44,22 @@ const ClientListPage = () => {
       <div className="container">
         <h1 className="title">Lista de clientes</h1>
 
-        {renderClientData(docsCollection)}
+        {renderClientData(docsCollection, handleModal)}
       </div>
+
+      {openModal && (
+        <Modal setOpenModal={setOpenModal}>
+          <p>
+            Cliente: {client.name} {client.last_name}
+          </p>
+          <p>Fecha estimada: DD/MM/AAAA</p>
+        </Modal>
+      )}
     </Layout>
   );
 };
 
-const renderClientData = ({ loader, data }) => {
-  console.log('data:', data);
-  console.log('data:', data.length);
+const renderClientData = ({ loader, data }, handleModal) => {
   if (loader) return <Loader />;
 
   if (data.length === 0)
@@ -60,7 +73,8 @@ const renderClientData = ({ loader, data }) => {
       </div>
     );
 
-  if (data.length > 0) return <Table docsCollection={data} />;
+  if (data.length > 0)
+    return <Table docsCollection={data} handleModal={handleModal} />;
 };
 
 export default ClientListPage;

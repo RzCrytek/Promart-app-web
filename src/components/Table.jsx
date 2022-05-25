@@ -1,6 +1,6 @@
 import React from 'react';
 
-const Table = ({ docsCollection }) => {
+const Table = ({ docsCollection, handleModal }) => {
   const handleInfo = (id) => {
     console.log('id:', id);
   };
@@ -40,11 +40,11 @@ const Table = ({ docsCollection }) => {
 
               <td>{client.last_name}</td>
               <td>{client.age}</td>
-              <td>{client.date_birth}</td>
+              <td>{client.date_birth.split('-').reverse().join('-')}</td>
               <td>
                 <button
                   className="button is-info is-light"
-                  onClick={() => handleInfo(client.id)}
+                  onClick={() => handleModal(client)}
                 >
                   Ver proyección
                 </button>

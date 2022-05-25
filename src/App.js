@@ -16,10 +16,10 @@ function App() {
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/listar-clientes" element={<ClientListPage />} />
-          <Route
+          {/* <Route
             path="/proyeccion-analisis"
             element={<ProjectionAnalysisPage />}
-          />
+          /> */}
         </Routes>
       </BrowserRouter>
 

@@ -10,10 +10,10 @@ const Header = () => {
       name: 'Clientes',
       linkTo: '/listar-clientes',
     },
-    {
-      name: 'Proyección y análisis',
-      linkTo: '/proyeccion-analisis',
-    },
+    // {
+    //   name: 'Proyección y análisis',
+    //   linkTo: '/proyeccion-analisis',
+    // },
   ];
 
   return (
