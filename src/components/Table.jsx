@@ -1,10 +1,6 @@
 import React from 'react';
 
 const Table = ({ docsCollection, handleModal }) => {
-  const handleInfo = (id) => {
-    console.log('id:', id);
-  };
-
   const averageAge =
     docsCollection.reduce((acc, curr) => +acc + Number(curr.age), 0) /
     docsCollection.length;

@@ -1,11 +1,14 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
-import { addDoc, collection } from 'firebase/firestore';
+import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
 import db from '../firebase/firebaseConfig';
 
 import { toast } from 'react-toastify';
 
 import Layout from './_Layout';
+import { InputField, Loader } from '../components';
+import { probableDateDeath } from '../helpers';
 
 const initialClient = {
   name: '',
@@ -15,21 +18,9 @@ const initialClient = {
 };
 
 const HomePage = () => {
+  const navigate = useNavigate();
   const [clientForm, setClientForm] = useState(initialClient);
-  const [formErrors, setFormErrors] = useState(true);
-
-  useEffect(() => {
-    if (
-      !clientForm.name ||
-      !clientForm.last_name ||
-      !clientForm.age ||
-      !clientForm.date_birth
-    ) {
-      setFormErrors(true);
-    } else {
-      setFormErrors(false);
-    }
-  }, [clientForm]);
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -37,16 +28,30 @@ const HomePage = () => {
     setClientForm({ ...clientForm, [name]: value });
   };
 
+  const requiredFields = Object.values(clientForm).every(
+    (clientForm) => clientForm !== ''
+  );
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const docRef = await addDoc(collection(db, 'clients'), clientForm);
+    setLoading(true);
+
+    const docRef = await addDoc(collection(db, 'clients'), {
+      ...clientForm,
+      probableDateDeath: probableDateDeath(
+        clientForm.age,
+        clientForm.date_birth
+      ).probableDate,
+      timestamp: serverTimestamp(),
+    });
 
     toast.success('¡Cliente Registrado!');
 
     setClientForm(initialClient);
 
-    console.log('docRef:', docRef.id);
+    // console.log('docRef:', docRef.id);
+    setLoading(false);
   };
 
   return (
@@ -59,74 +64,63 @@ const HomePage = () => {
                 <div className="card-content">
                   <div className="content">
                     {/* <pre>{JSON.stringify(clientForm, null, 2)}</pre> */}
-                    <div className="field">
-                      <label className="label">Nombre</label>
 
-                      <div className="control">
-                        <input
-                          className="input"
-                          type="text"
-                          name="name"
-                          value={clientForm.name}
-                          onChange={handleChange}
-                          required
-                        />
-                      </div>
-                    </div>
+                    <h1 className="title mt-0 has-text-centered">
+                      Registrar cliente
+                    </h1>
 
-                    <div className="field">
-                      <label className="label">Apellidos</label>
+                    <InputField
+                      label="Nombre"
+                      name="name"
+                      value={clientForm.name}
+                      onChange={handleChange}
+                    />
 
-                      <div className="control">
-                        <input
-                          className="input"
-                          type="text"
-                          name="last_name"
-                          value={clientForm.last_name}
-                          onChange={handleChange}
-                          required
-                        />
-                      </div>
-                    </div>
+                    <InputField
+                      label="Apellidos"
+                      name="last_name"
+                      value={clientForm.last_name}
+                      onChange={handleChange}
+                    />
 
-                    <div className="field">
-                      <label className="label">Edad</label>
+                    <InputField
+                      label="Edad"
+                      type="number"
+                      name="age"
+                      value={clientForm.age}
+                      onChange={handleChange}
+                    />
 
-                      <div className="control">
-                        <input
-                          className="input"
-                          type="number"
-                          name="age"
-                          value={clientForm.age}
-                          onChange={handleChange}
-                          required
-                        />
-                      </div>
-                    </div>
-
-                    <div className="field">
-                      <label className="label">Fecha de nacimiento</label>
-
-                      <div className="control">
-                        <input
-                          className="input"
-                          type="date"
-                          name="date_birth"
-                          value={clientForm.date_birth}
-                          onChange={handleChange}
-                          required
-                        />
-                      </div>
-                    </div>
+                    <InputField
+                      label="Fecha de nacimiento"
+                      type="date"
+                      name="date_birth"
+                      value={clientForm.date_birth}
+                      onChange={handleChange}
+                    />
 
                     <div className="field is-grouped">
                       <div className="control">
                         <button
                           className="button is-link"
                           type="submit"
-                          disabled={formErrors}
+                          disabled={loading || !requiredFields}
                         >
-                          Crear cliente
+                          {loading ? (
+                            <Loader small color="white" />
+                          ) : (
+                            'Registrar cliente'
+                          )}
+                        </button>
+                      </div>
+
+                      <div className="control">
+                        <button
+                          type="button"
+                          className="button is-primary is-light"
+                          onClick={() => navigate('/listar-clientes')}
+                        >
+                          Ver clientes
                         </button>
                       </div>
                     </div>

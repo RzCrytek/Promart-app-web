@@ -7,7 +7,6 @@ import './styles/app.scss';
 
 import HomePage from './pages/HomePage';
 import ClientListPage from './pages/ClientListPage';
-import ProjectionAnalysisPage from './pages/ProjectionAnalysisPage';
 
 function App() {
   return (
@@ -16,10 +15,7 @@ function App() {
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/listar-clientes" element={<ClientListPage />} />
-          {/* <Route
-            path="/proyeccion-analisis"
-            element={<ProjectionAnalysisPage />}
-          /> */}
+          <Route path="*" element={<h1>Not Found</h1>}></Route>
         </Routes>
       </BrowserRouter>
 

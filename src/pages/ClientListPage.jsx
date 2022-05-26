@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 
-import { collection, getDocs } from 'firebase/firestore';
+import { collection, getDocs, orderBy, query } from 'firebase/firestore';
 import db from '../firebase/firebaseConfig';
 
 import Layout from './_Layout';
 import { Loader, Modal, Table } from '../components';
+import { probableDateDeath } from '../helpers';
 
 const initialState = {
   data: [],
@@ -19,7 +20,9 @@ const ClientListPage = () => {
 
   useEffect(() => {
     const getDocsCollection = async () => {
-      const querySnapshot = await getDocs(collection(db, 'clients'));
+      const querySnapshot = await getDocs(
+        query(collection(db, 'clients'), orderBy('timestamp', 'desc'))
+      );
 
       const arrQuerySnapshot = querySnapshot.docs.map((document) => ({
         id: document.id,
@@ -37,22 +40,62 @@ const ClientListPage = () => {
     setOpenModal(!openModal);
   };
 
-  console.log('docsCollection:', docsCollection);
-
   return (
     <Layout id="client-list">
       <div className="container">
-        <h1 className="title">Lista de clientes</h1>
+        <div className="level">
+          <div className="level-left">
+            <h1 className="title">Lista de clientes</h1>
+          </div>
+
+          <div className="level-right">
+            <Link className="button is-link is-light" to="/">
+              Registrar cliente
+            </Link>
+          </div>
+        </div>
 
         {renderClientData(docsCollection, handleModal)}
       </div>
 
       {openModal && (
         <Modal setOpenModal={setOpenModal}>
-          <p>
-            Cliente: {client.name} {client.last_name}
-          </p>
-          <p>Fecha estimada: DD/MM/AAAA</p>
+          <h3 className="title is-size-5 has-text-centered">
+            Fecha probable de defunción
+          </h3>
+
+          <table className="table is-fullwidth is-bordered">
+            <tbody>
+              <tr>
+                <td>Cliente:</td>
+                <td>
+                  <strong>
+                    {client.name} {client.last_name}
+                  </strong>
+                </td>
+              </tr>
+              <tr>
+                <td>Fecha probable de defunción:</td>
+                <td>
+                  <strong>
+                    {client.probableDateDeath.split('-').reverse().join('-')}
+                  </strong>
+                </td>
+              </tr>
+              <tr>
+                <td>Aproximadamente en:</td>
+                <td>
+                  <strong>
+                    {
+                      probableDateDeath(client.age, client.date_birth)
+                        .probableAge
+                    }{' '}
+                    años
+                  </strong>
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </Modal>
       )}
     </Layout>
